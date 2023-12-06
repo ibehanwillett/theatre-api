@@ -1,6 +1,7 @@
 from flask import Blueprint
 from config import db, bcrypt
 from models.user import User
+from models.course import Course
 from datetime import date
 
 
@@ -34,5 +35,16 @@ def db_seed():
 
     db.session.add_all(users)
     db.session.commit()
+    # Creating the courses
+    courses = [
+        Course(
+            name = 'Improv Fundamentals',
+            description = 'The first class'
+        )
+    ]
+
+    db.session.add_all(courses)
+    db.session.commit()
+
 
     print("Database seeded")
