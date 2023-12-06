@@ -7,6 +7,9 @@ class Qualification(db.Model):
     name = db.Column(db.String(), nullable=False)
     description = db.Column(db.String())
 
+    user_qualifications = db.relationship('UserQualification', back_populates='qualification')
+
+
 class QualificationSchema(ma.Schema):
     class Meta:
         fields = ("id", "name", "description")

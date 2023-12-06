@@ -2,8 +2,10 @@ from flask import Blueprint
 from config import db, bcrypt
 from models.user import User
 from models.course import Course
+from models.user_course import UserCourse
 from models.qualification import Qualification
-from datetime import date
+from models.user_qualification import UserQualification
+
 
 
 db_commands = Blueprint('db', __name__)
@@ -27,6 +29,13 @@ def db_seed():
             is_admin=True,
         ),
         User(
+            first_name="Johnny",
+            last_name="Garage",
+            email="johnny@bigforktheatre.com",
+            password=bcrypt.generate_password_hash("vroom vroom").decode("utf8"),
+            is_comittee=True,
+        ),
+        User(
             first_name="Horse",
             last_name="Jorsington",
             email="horse@jorse.com",
@@ -36,6 +45,7 @@ def db_seed():
 
     db.session.add_all(users)
     db.session.commit()
+
     # Creating the courses
     courses = [
         Course(
@@ -57,6 +67,29 @@ def db_seed():
 
     db.session.add_all(qualifications)
     db.session.commit()
+
+    # Creating course enrollement
+    graduated = [
+        UserCourse(
+            user_id=users[0].id,
+            course_id=courses[0].id,
+        )
+    ]
+
+    db.session.add_all(graduated)
+    db.session.commit()
+
+    # Assigning qualifications
+    qualifications = [
+        UserQualification(
+            user_id=users[0].id,
+            qualification_id=qualifications[0].id,
+        )
+    ]
+
+    db.session.add_all(qualifications)
+    db.session.commit()
+
 
 
     print("Database seeded")

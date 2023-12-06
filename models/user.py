@@ -13,6 +13,9 @@ class User(db.Model):
     is_admin = db.Column(db.Boolean(), default=False)
     is_comittee = db.Column(db.Boolean(), default=False)
 
+    user_courses = db.relationship('UserCourse', back_populates='user')
+    user_qualifications = db.relationship('UserQualification', back_populates='user')
+                                   
 class UserSchema(ma.Schema):
     email = fields.Email(required=True)
     password = fields.String(required=True, validate=Length(min=8, error="Password must be at least 8 characters"))
