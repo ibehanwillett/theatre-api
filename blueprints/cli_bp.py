@@ -50,8 +50,30 @@ def db_seed():
     courses = [
         Course(
             name = 'Improv Fundamentals',
-            description = 'The first class'
-        )
+            description = 'Covers the basics of improv'
+        ),
+
+        Course(
+            name = 'The Scene',
+            description = 'Covers techniques for a two person scene'
+        ),
+
+        Course(
+            name = 'Characters',
+            description = 'Teaches how to develop characters'
+        ), 
+
+        Course(
+            name = 'Group Mind',
+            description = 'Teaches group game skills and openings for shows'
+        ), 
+
+        Course(
+            name = 'Finding the Funny',
+            description = 'The basics of game improv'
+        ), 
+
+
     ]
 
     db.session.add_all(courses)
@@ -62,6 +84,11 @@ def db_seed():
         Qualification(
             name = 'RSA',
             description = 'Responsible Service of Alchol. You need it to bartend in Queensland.'
+        ), 
+
+        Qualification(
+            name = 'Venue Manager',
+            description = 'Responsibities include opening and closing the venue, open and closing till and orgainising performers and volenteers on the night'
         )
     ]
 
