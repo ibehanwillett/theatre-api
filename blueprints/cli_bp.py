@@ -72,8 +72,6 @@ def db_seed():
             name = 'Finding the Funny',
             description = 'The basics of game improv'
         ), 
-
-
     ]
 
     db.session.add_all(courses)
