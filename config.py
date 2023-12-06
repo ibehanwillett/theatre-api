@@ -8,7 +8,7 @@ from os import environ
 
 app = Flask(__name__)
 
-app.config['JWT_SECRET_KEY'] = environ.get('JWT_KEY')
+app.config['JWT_SECRET_KEY'] = environ.get('JWT_SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DATABASE_URI')
 
 db = SQLAlchemy(app)
