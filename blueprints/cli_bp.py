@@ -33,7 +33,7 @@ def db_seed():
             last_name="Garage",
             email="johnny@bigforktheatre.com",
             password=bcrypt.generate_password_hash("vroom vroom").decode("utf8"),
-            is_comittee=True,
+            is_committee=True,
         ),
         User(
             first_name="Horse",
