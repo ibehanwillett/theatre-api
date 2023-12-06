@@ -2,6 +2,7 @@ from flask import Blueprint
 from config import db, bcrypt
 from models.user import User
 from models.course import Course
+from models.qualification import Qualification
 from datetime import date
 
 
@@ -44,6 +45,17 @@ def db_seed():
     ]
 
     db.session.add_all(courses)
+    db.session.commit()
+
+    # Creating the qualifications
+    qualifications = [
+        Qualification(
+            name = 'RSA',
+            description = 'Responsible Service of Alchol. You need it to bartend in Queensland.'
+        )
+    ]
+
+    db.session.add_all(qualifications)
     db.session.commit()
 
 
