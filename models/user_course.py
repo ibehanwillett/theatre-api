@@ -1,10 +1,11 @@
 from config import db, ma
 from marshmallow import fields
 import datetime
+from sqlalchemy import PrimaryKeyConstraint
 
 class UserCourse(db.Model):
     __tablename__ = 'user_courses'
-    id= db.Column(db.Integer, primary_key=True)
+    # id= db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'))
     
@@ -17,6 +18,12 @@ class UserCourse(db.Model):
 
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'))
     course = db.relationship("Course", back_populates="user_courses")
+
+    __table_args__ = (
+    db.PrimaryKeyConstraint(
+        user_id, course_id,
+        ),
+    )
 
 class UserCourseSchema(ma.Schema):
     class Meta:
