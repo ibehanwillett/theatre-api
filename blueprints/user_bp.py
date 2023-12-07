@@ -37,8 +37,54 @@ def login():
     stmt = db.select(User).where(User.email == user_info["email"])
     user = db.session.scalar(stmt)
     if user and bcrypt.check_password_hash(user.password, user_info["password"]):
-        token = create_access_token(identity=user.first_name, expires_delta=timedelta(hours=2))
+        token = create_access_token(identity=user.id, expires_delta=timedelta(hours=2))
         return {'token': token, 'user': UserSchema(exclude=["password", "is_admin", "is_committee"]).dump(user)}
     else:
         return {"error": "Invalid email or password"}, 401
 
+@users_bp.route('/')
+@jwt_required
+def all_courses():
+    stmt = db.select(User)
+    users = db.session.scalars(stmt).all()
+    return UserSchema(many=True, only=["first_name","last_name"]).dump(users)
+
+
+
+@users_bp.route('/committee')
+@jwt_required
+def all_committee():
+    stmt = db.select(User).where(db.or_(User.is_committee == True))
+    users = db.session.scalars(stmt).all()
+    return UserSchema(many=True, only=["first_name","last_name"]).dump(users)
+
+@users_bp.route('/<int:user_id>')
+@jwt_required
+def update_user(id):
+    user_info = UserSchema().load(request.json)
+    stmt = db.select(User).filter_by(id=id)
+    user = db.session.scalar(stmt)
+    if user: 
+        # authorisation here
+        user.email = user_info.get('email', user.email)
+        user.password = user_info.get('password', user.password)
+        user.first_name = user_info.get('first_name', user.first_name)
+        user.last_name = user_info.get('last_name', user.last_name)
+        user.phone_number = user_info.get('phone_number', user.phone_number)
+        db.session.commit()
+        return UserSchema().dump(user)
+    else:
+        return {'error': 'No such user'}
+
+@users_bp.route('/<int:user_id>', methods=['DELETE'])
+@jwt_required()
+def delete_card(id):
+    stmt = db.select(User).filter_by(id=id)
+    user = (db.session.scalar(stmt))
+    if user:
+        # authorize(user.user_id)
+        db.session.delete(user)
+        db.session.commit()
+        return {'success': 'User deleted successfully'}, 200
+    else:
+        return {'error':'Card not found'}, 404
