@@ -26,7 +26,7 @@ def register_qualification():
     return UserQualificationSchema().dump(userqualification), 201
 # Note to self- need to create error handler for this one
 
-@userqualifications_bp.route('/<int:user_id/int:qualification_id>', methods=['PUT','PATCH'])
+@userqualifications_bp.route('/<int:user_id>/<int:qualification_id>', methods=['PUT','PATCH'])
 def update_userqualification(user_id,qualification_id):
     userqualification_info = UserQualificationSchema().load(request.json)
     stmt = db.select(UserQualification).filter_by(UserQualification.user_id==user_id,UserQualification.qualification_id==qualification_id)
@@ -48,12 +48,12 @@ def all_users_qualified(qualification_id):
 
 
 #Delete a user's qualifications
-@userqualifications_bp.route('/<int:user_id/int:qualification_id>', methods=['PUT','PATCH'])
+@userqualifications_bp.route('/<int:user_id>/<int:qualification_id>', methods=['PUT','PATCH'])
 def delete_userqualification(user_id,qualification_id):
     userqualification_info = UserQualificationSchema().load(request.json)
     stmt = db.select(UserQualification).filter_by(UserQualification.user_id==user_id,UserQualification.qualification_id==qualification_id)
     userqualification = db.session.scalar(stmt)
-      if userqualification:
+    if userqualification:
         # authorize(user.user_id)
         db.session.delete(userqualification)
         db.session.commit()

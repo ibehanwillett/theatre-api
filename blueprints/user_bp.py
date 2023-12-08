@@ -5,6 +5,9 @@ from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import create_access_token, jwt_required
 from datetime import timedelta
 from models.user_qualification import UserQualification, UserQualificationSchema
+from models.qualification import Qualification, QualificationSchema
+from models.user_course import UserCourse, UserCourseSchema
+from models.course import Course, CourseSchema
 
 
 
@@ -43,19 +46,21 @@ def login():
     else:
         return {"error": "Invalid email or password"}, 401
 
+# Returns list of all users
 @users_bp.route('/')
 def all_users():
     stmt = db.select(User)
     users = db.session.scalars(stmt).all()
     return UserSchema(many=True, only=["first_name","last_name"]).dump(users)
 
-
+# Returns list of all comittee members
 @users_bp.route('/committee')
 def all_committee():
     stmt = db.select(User).where(db.or_(User.is_committee == True))
     users = db.session.scalars(stmt).all()
     return UserSchema(many=True, only=["first_name","last_name"]).dump(users)
 
+# Updates single user
 @users_bp.route('/<int:user_id>', methods=['PUT','PATCH'])
 def update_user(id):
     user_info = UserSchema().load(request.json)
@@ -74,7 +79,6 @@ def update_user(id):
         return {'error': 'No such user'}
 
 @users_bp.route('/<int:user_id>', methods=['DELETE'])
-@jwt_required()
 def delete_user(id):
     stmt = db.select(User).filter_by(user_id=id)
     user = (db.session.scalar(stmt))
@@ -86,9 +90,17 @@ def delete_user(id):
     else:
         return {'error':'Card not found'}, 404
     
+# Returns a list of all qualifications a user has 
+@users_bp.route('qualifications/<int:user_id>')
+def all_qualifications(user_id):
+    stmt = db.select(Qualification).join(UserQualification).where(UserQualification.user_id==user_id)
+    qualifications = db.session.scalars(stmt).all()
+    return QualificationSchema(many=True).dump(qualifications)
 
-# @users_bp.route('qualifications/<int:qualification_id>')
-# def all_users_qualified(qualification_id):
-#     stmt = db.select(User).join(UserQualification).where(UserQualification.qualification_id==qualification_id)
-#     qualified_users = db.session.scalars(stmt).all()
-#     return UserSchema(many=True, only=["first_name","last_name"]).dump(qualified_users)
+# Returns a list of courses that a user has completed
+@users_bp.route('courses/<int:user_id>')
+def all_courses(user_id):
+    stmt = db.select(Course).join(UserCourse).where(UserCourse.user_id==user_id)
+    courses = db.session.scalars(stmt).all()
+    return CourseSchema(many=True).dump(courses)
+

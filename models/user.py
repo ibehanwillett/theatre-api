@@ -13,8 +13,8 @@ class User(db.Model):
     is_admin = db.Column(db.Boolean(), default=False)
     is_committee = db.Column(db.Boolean(), default=False)
 
-    user_courses = db.relationship('UserCourse', back_populates='user')
-    user_qualifications = db.relationship('UserQualification', back_populates='user')
+    user_courses = db.relationship('UserCourse', back_populates='user', cascade='all, delete')
+    user_qualifications = db.relationship('UserQualification', back_populates='user', cascade='all, delete')
                                    
 class UserSchema(ma.Schema):
     email = fields.Email(required=True)

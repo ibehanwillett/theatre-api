@@ -15,9 +15,10 @@ usercourses_bp = Blueprint('usercourse', __name__, url_prefix='/user_courses')
 @usercourses_bp.route("/", methods=["POST"])
 def register_course():
     usercourse_info = UserCourseSchema().load(request.json)
-    usercourse = usercourse(
+    usercourse = UserCourse(
         user_id=usercourse_info["user_id"],
         course_id=usercourse_info["course_id"],
+        equivalent=usercourse_info.get("equivalent")
     )
     db.session.add(usercourse)
     db.session.commit()
@@ -27,7 +28,7 @@ def register_course():
 
 # Do we need to update the user's course?
 
-# @usercourses_bp.route('/<int:user_id/int:course_id>', methods=['PUT','PATCH'])
+# @usercourses_bp.route('/<int:user_id>/<int:course_id>', methods=['PUT','PATCH'])
 # def update_usercourse(user_id,course_id):
 #     usercourse_info = UserCourseSchema().load(request.json)
 #     stmt = db.select(UserCourse).filter_by(UserCourse.user_id==user_id,UserCourse.course_id==course_id)
@@ -42,22 +43,29 @@ def register_course():
 
 # Return a list of all users with specific course
 @usercourses_bp.route('/<int:course_id>')
-def all_users_qualified(course_id):
+def all_users_graduated(course_id):
     stmt = db.select(User).join(UserCourse).where(UserCourse.course_id==course_id)
-    qualified_users = db.session.scalars(stmt).all()
-    return UserSchema(many=True, exclude=["id","password","is_admin","is_committee"]).dump(qualified_users)
+    graduated_users = db.session.scalars(stmt).all()
+    return UserSchema(many=True, exclude=["id","password","is_admin","is_committee"]).dump(graduated_users)
 
 
 #Delete a user's courses
-@usercourses_bp.route('/<int:user_id/int:course_id>', methods=['PUT','PATCH'])
+@usercourses_bp.route('/<int:user_id>/<int:course_id>', methods=['PUT','PATCH'])
 def delete_usercourse(user_id,course_id):
     usercourse_info = UserCourseSchema().load(request.json)
     stmt = db.select(UserCourse).filter_by(UserCourse.user_id==user_id,UserCourse.course_id==course_id)
     usercourse = db.session.scalar(stmt)
-      if usercourse:
+    if usercourse:
         # authorize(user.user_id)
         db.session.delete(usercourse)
         db.session.commit()
         return {'success': 'Course deleted successfully'}, 200
     else:
         return {'error':'User/Course combo not found'}, 404
+    
+    # Return a list of all users with only the equivalent
+@usercourses_bp.route('/equivalent/<int:course_id>')
+def equivalent_graduated(course_id):
+    stmt = db.select(User).join(UserCourse).where(db.and_(UserCourse.course_id==course_id, UserCourse.equivalent==True))
+    graduated_users = db.session.scalars(stmt).all()
+    return UserSchema(many=True, exclude=["id","password","is_admin","is_committee"]).dump(graduated_users)
