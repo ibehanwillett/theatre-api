@@ -4,6 +4,7 @@ from config import bcrypt, db
 from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import create_access_token, jwt_required
 from datetime import timedelta
+from models.user_qualification import UserQualification, UserQualificationSchema
 
 
 
@@ -43,23 +44,19 @@ def login():
         return {"error": "Invalid email or password"}, 401
 
 @users_bp.route('/')
-@jwt_required
-def all_courses():
+def all_users():
     stmt = db.select(User)
     users = db.session.scalars(stmt).all()
     return UserSchema(many=True, only=["first_name","last_name"]).dump(users)
 
 
-
 @users_bp.route('/committee')
-@jwt_required
 def all_committee():
     stmt = db.select(User).where(db.or_(User.is_committee == True))
     users = db.session.scalars(stmt).all()
     return UserSchema(many=True, only=["first_name","last_name"]).dump(users)
 
-@users_bp.route('/<int:user_id>')
-@jwt_required
+@users_bp.route('/<int:user_id>', methods=['PUT','PATCH'])
 def update_user(id):
     user_info = UserSchema().load(request.json)
     stmt = db.select(User).filter_by(id=id)
@@ -78,8 +75,8 @@ def update_user(id):
 
 @users_bp.route('/<int:user_id>', methods=['DELETE'])
 @jwt_required()
-def delete_card(id):
-    stmt = db.select(User).filter_by(id=id)
+def delete_user(id):
+    stmt = db.select(User).filter_by(user_id=id)
     user = (db.session.scalar(stmt))
     if user:
         # authorize(user.user_id)
@@ -88,3 +85,10 @@ def delete_card(id):
         return {'success': 'User deleted successfully'}, 200
     else:
         return {'error':'Card not found'}, 404
+    
+
+# @users_bp.route('qualifications/<int:qualification_id>')
+# def all_users_qualified(qualification_id):
+#     stmt = db.select(User).join(UserQualification).where(UserQualification.qualification_id==qualification_id)
+#     qualified_users = db.session.scalars(stmt).all()
+#     return UserSchema(many=True, only=["first_name","last_name"]).dump(qualified_users)

@@ -10,7 +10,7 @@ class UserQualification(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     user = db.relationship("User", back_populates="user_qualifications")
-
+    
     qualification_id = db.Column(db.Integer, db.ForeignKey('qualifications.id'))
     qualification = db.relationship("Qualification", back_populates="user_qualifications")
     
@@ -22,6 +22,6 @@ class UserQualification(db.Model):
     
    
 
-class UserCourseSchema(ma.Schema):
+class UserQualificationSchema(ma.Schema):
     class Meta:
-        fields = ('user_id', 'qualification_id', 'last_refresher')
+        fields = ("user_id", "qualification_id", "last_refresher")

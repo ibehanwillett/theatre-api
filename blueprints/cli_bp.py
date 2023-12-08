@@ -109,6 +109,11 @@ def db_seed():
         UserQualification(
             user_id=users[0].id,
             qualification_id=qualifications[0].id,
+        ),
+
+         UserQualification(
+            user_id=users[2].id,
+            qualification_id=qualifications[0].id,
         )
     ]
 
