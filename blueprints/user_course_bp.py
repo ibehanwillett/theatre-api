@@ -26,20 +26,22 @@ def register_course():
     return UserCourseSchema().dump(usercourse), 201
 # Note to self- need to create error handler for this one
 
-# Do we need to update the user's course?
-
-# @usercourses_bp.route('/<int:user_id>/<int:course_id>', methods=['PUT','PATCH'])
-# def update_usercourse(user_id,course_id):
-#     usercourse_info = UserCourseSchema().load(request.json)
-#     stmt = db.select(UserCourse).filter_by(UserCourse.user_id==user_id,UserCourse.course_id==course_id)
-#     usercourse = db.session.scalar(stmt)
-#     if usercourse: 
-#         # authorisation here
-#         usercourse.last_refresher = usercourse_info.get('last_refresher', usercourse.last_refresher)
-#         db.session.commit()
-#         return UserSchema().dump(usercourse)
-#     else:
-#         return {'error': 'Qualification cannot be found for that user'}
+# Updating a completed course
+@usercourses_bp.route('/<int:user_id>/<int:course_id>', methods=['PUT','PATCH'])
+def update_usercourse(user_id,course_id):
+    usercourse_info = UserCourseSchema().load(request.json)
+    stmt = db.select(UserCourse).filter_by(UserCourse.user_id==user_id,UserCourse.course_id==course_id)
+    usercourse = db.session.scalar(stmt)
+    if usercourse: 
+        # authorize_committee()
+        if usercourse.equivalent == True:
+            usercourse.equivalent = usercourse_info["equivalent"]
+            db.session.commit()
+            return UserSchema().dump(usercourse)
+        else: 
+            return {'Error': 'Course already completed'}, 400
+    else:
+        return {'error': 'Course cannot be found for that user'}, 404
 
 # Return a list of all users with specific course
 @usercourses_bp.route('/<int:course_id>')

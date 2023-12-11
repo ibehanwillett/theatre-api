@@ -23,4 +23,12 @@ def admin_or_committee_only():
     user = db.session.scalar(stmt)
     if not (user.is_admin or (user.is_committee)):
         abort(401, description='Invalid action. User must be an administrator or committee member.')
-    
+
+def is_admin():
+    current_user = get_jwt_identity()
+    stmt = db.select(User).filter_by(id=current_user)
+    user = db.session.scalar(stmt)
+    if user.is_admin:
+        return True
+    else:
+        return False

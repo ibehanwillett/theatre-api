@@ -87,7 +87,12 @@ def db_seed():
         Qualification(
             name = 'Venue Manager',
             description = 'Responsibities include opening and closing the venue, open and closing till and orgainising performers and volenteers on the night'
-        )
+        ), 
+
+        Qualification(
+            name = 'Door Person', 
+            description = 'Greets people on the night and checks their ticket'
+        ),
     ]
 
     db.session.add_all(qualifications)

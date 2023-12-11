@@ -66,9 +66,9 @@ def all_committee():
 # Updates single user
 @users_bp.route('/<int:user_id>', methods=['PUT','PATCH'])
 @jwt_required()
-def update_user(id):
+def update_user(user_id):
     user_info = UserSchema().load(request.json)
-    stmt = db.select(User).filter_by(id=id)
+    stmt = db.select(User).filter_by(id=user_id)
     user = db.session.scalar(stmt)
     if user: 
         authorize()
@@ -77,6 +77,10 @@ def update_user(id):
         user.first_name = user_info.get('first_name', user.first_name)
         user.last_name = user_info.get('last_name', user.last_name)
         user.phone_number = user_info.get('phone_number', user.phone_number)
+        admin = is_admin()
+        # if admin is True:
+        #     user.is_admin = user_info.get('is_admin', user.is_admin)
+        #     user.is_committee = user_info.get('is_committee', user.is_committee)
         db.session.commit()
         return UserSchema().dump(user)
     else:
