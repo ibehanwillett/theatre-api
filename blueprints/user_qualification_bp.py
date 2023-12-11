@@ -13,7 +13,9 @@ userqualifications_bp = Blueprint('userqualification', __name__, url_prefix='/us
 def register_qualification():
     admin_or_committee_only()
     userqualification_info = UserQualificationSchema().load(request.json)
-    check_preexisting_qualification(userqualification_info["user_id"], userqualification_info["qualification_id"])
+    check = check_preexisting_qualification(userqualification_info["user_id"], userqualification_info["qualification_id"])
+    if check:
+        abort(406, description='Record already exists.')
     userqualification = UserQualification(
         user_id=userqualification_info["user_id"],
         qualification_id=userqualification_info["qualification_id"],
@@ -38,33 +40,30 @@ def update_userqualification(user_id,qualification_id):
 
 # Return a list of all users with specific qualification
 @userqualifications_bp.route('/<int:qualification_id>')
-@jwt_required
+@jwt_required()
 def all_users_qualified(qualification_id):
     admin_or_committee_only()
     stmt = db.select(User).join(UserQualification).where(UserQualification.qualification_id==qualification_id)
     qualified_users = db.session.scalars(stmt).all()
-    return UserSchema(many=True, exclude=["id","password","is_admin","is_committee"]).dump(qualified_users)
+    return UserSchema(many=True, exclude=["id","password","is_admin","is_committee"]).dump(qualified_users), 200
 
 
 #Delete a user's qualifications
-@userqualifications_bp.route('/<int:user_id>/<int:qualification_id>', methods=['PUT','PATCH'])
+@userqualifications_bp.route('/<int:user_id>/<int:qualification_id>', methods=['DELETE'])
+@jwt_required()
 def delete_userqualification(user_id,qualification_id):
     userqualification_info = UserQualificationSchema().load(request.json)
-    stmt = db.select(UserQualification).filter_by(UserQualification.user_id==user_id,UserQualification.qualification_id==qualification_id)
-    userqualification = db.session.scalar(stmt)
+    userqualification = check_preexisting_qualification(user_id,qualification_id)
     if userqualification:
-        # authorize(user.user_id)
+        admin_or_committee_only()
         db.session.delete(userqualification)
         db.session.commit()
-        return {'success': 'Qualification deleted successfully'}, 200
+        return {'Success': 'Qualification deleted successfully'}, 200
     else:
-        return {'error':'User/Qualification combo not found'}, 404
+        return {'Error':'User/Qualification combo not found'}, 404
     
 
 def check_preexisting_qualification(user_id, qualification_id):
     stmt = db.select(UserQualification).where(UserQualification.user_id==user_id,UserQualification.qualification_id==qualification_id)
-    check = db.session.scalar(stmt)
-    if check:
-        abort(406, description='Record already exists.')
-    else:
-        return
+    record = db.session.scalar(stmt)
+    return record
