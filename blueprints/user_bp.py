@@ -8,6 +8,7 @@ from models.user_qualification import UserQualification, UserQualificationSchema
 from models.qualification import Qualification, QualificationSchema
 from models.user_course import UserCourse, UserCourseSchema
 from models.course import Course, CourseSchema
+from auth import *
 
 
 
@@ -48,6 +49,7 @@ def login():
 
 # Returns list of all users
 @users_bp.route('/')
+@jwt_required()
 def all_users():
     stmt = db.select(User)
     users = db.session.scalars(stmt).all()
@@ -55,6 +57,7 @@ def all_users():
 
 # Returns list of all comittee members
 @users_bp.route('/committee')
+@jwt_required()
 def all_committee():
     stmt = db.select(User).where(db.or_(User.is_committee == True))
     users = db.session.scalars(stmt).all()
@@ -62,12 +65,13 @@ def all_committee():
 
 # Updates single user
 @users_bp.route('/<int:user_id>', methods=['PUT','PATCH'])
+@jwt_required()
 def update_user(id):
     user_info = UserSchema().load(request.json)
     stmt = db.select(User).filter_by(id=id)
     user = db.session.scalar(stmt)
     if user: 
-        # authorisation here
+        authorize()
         user.email = user_info.get('email', user.email)
         user.password = user_info.get('password', user.password)
         user.first_name = user_info.get('first_name', user.first_name)
@@ -79,27 +83,32 @@ def update_user(id):
         return {'error': 'No such user'}
 
 @users_bp.route('/<int:user_id>', methods=['DELETE'])
+@jwt_required()
 def delete_user(id):
     stmt = db.select(User).filter_by(user_id=id)
     user = (db.session.scalar(stmt))
     if user:
-        # authorize(user.user_id)
+        authorize()
         db.session.delete(user)
         db.session.commit()
-        return {'success': 'User deleted successfully'}, 200
+        return {'Success': 'User deleted successfully'}, 200
     else:
-        return {'error':'Card not found'}, 404
+        return {'Error':'User not found'}, 404
     
 # Returns a list of all qualifications a user has 
 @users_bp.route('qualifications/<int:user_id>')
+@jwt_required()
 def all_qualifications(user_id):
+    authorize_committee()
     stmt = db.select(Qualification).join(UserQualification).where(UserQualification.user_id==user_id)
     qualifications = db.session.scalars(stmt).all()
     return QualificationSchema(many=True).dump(qualifications)
 
 # Returns a list of courses that a user has completed
 @users_bp.route('courses/<int:user_id>')
+@jwt_required()
 def all_courses(user_id):
+    authorize_committee()
     stmt = db.select(Course).join(UserCourse).where(UserCourse.user_id==user_id)
     courses = db.session.scalars(stmt).all()
     return CourseSchema(many=True).dump(courses)
