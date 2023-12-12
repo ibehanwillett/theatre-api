@@ -30,4 +30,3 @@ def admin_only():
     user = db.session.scalar(stmt)
     if not user.is_admin:
         abort(401, description='Invalid action. User must be an administrator.')
-

@@ -120,3 +120,6 @@ def all_courses(user_id):
     courses = db.session.scalars(stmt).all()
     return CourseSchema(many=True).dump(courses)
 
+
+
+
