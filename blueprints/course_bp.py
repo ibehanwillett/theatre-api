@@ -1,17 +1,20 @@
 from flask import Blueprint, request
 from config import db
 from models.course import Course, CourseSchema
+from flask_jwt_extended import jwt_required
+from auth import *
 
 courses_bp = Blueprint('course', __name__, url_prefix='/courses')
 
-# Return a list of all Courses
+# Return a list of all courses
 @courses_bp.route('/')
+@jwt_required
 def all_courses():
     stmt = db.select(Course)
     courses = db.session.scalars(stmt).all()
     return CourseSchema(many=True).dump(courses)
 
-# Create a new Course
+# Create a new course
 @courses_bp.route('/', methods=['POST'])
 def create_course():
     course_info = CourseSchema(exclude=['id']).load(request.json)

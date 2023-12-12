@@ -3,6 +3,7 @@ from config import db
 from models.user_qualification import UserQualification, UserQualificationSchema
 from models.user import User, UserSchema
 from auth import *
+import datetime
 from flask_jwt_extended import jwt_required
 userqualifications_bp = Blueprint('userqualification', __name__, url_prefix='/user_qualifications')
 
@@ -26,17 +27,17 @@ def register_qualification():
 
 # Update the last refresher for a qualification
 @userqualifications_bp.route('/<int:user_id>/<int:qualification_id>', methods=['PUT','PATCH'])
+@jwt_required()
 def update_userqualification(user_id,qualification_id):
     userqualification_info = UserQualificationSchema().load(request.json)
-    stmt = db.select(UserQualification).filter_by(UserQualification.user_id==user_id,UserQualification.qualification_id==qualification_id)
-    userqualification = db.session.scalar(stmt)
+    userqualification = check_preexisting_qualification(user_id, qualification_id)
     if userqualification: 
         admin_or_committee_only()
-        userqualification.last_refresher = userqualification_info.get('last_refresher', userqualification.last_refresher)
+        userqualification.last_refresher = userqualification_info.get('last_refresher', datetime.datetime.now())
         db.session.commit()
-        return UserSchema().dump(userqualification)
+        return UserQualificationSchema().dump(userqualification)
     else:
-        return {'error': 'Qualification cannot be found for that user'}
+        return {'Error': 'Qualification cannot be found for that user'}
 
 # Return a list of all users with specific qualification
 @userqualifications_bp.route('/<int:qualification_id>')

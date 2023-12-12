@@ -16,7 +16,7 @@ from auth import *
 users_bp = Blueprint('users', __name__, url_prefix='/users')
 
 # Create a new user
-@users_bp.route("/register", methods=["POST"]) #Note to self- is having /register still RESTful?
+@users_bp.route("/register", methods=["POST"])
 def register():
     try:
         user_info = UserSchema(exclude=["id", "is_admin", "is_committee"]).load(request.json)
@@ -51,15 +51,15 @@ def login():
 @users_bp.route('/')
 @jwt_required()
 def all_users():
-    stmt = db.select(User)
+    stmt = db.select(User).order_by('last_name')
     users = db.session.scalars(stmt).all()
     return UserSchema(many=True, only=["first_name","last_name"]).dump(users)
 
-# Returns list of all comittee members
+# Returns list of all committee members
 @users_bp.route('/committee')
 @jwt_required()
 def all_committee():
-    stmt = db.select(User).where(db.or_(User.is_committee == True))
+    stmt = db.select(User).where(User.is_committee == True).order_by('last_name')
     users = db.session.scalars(stmt).all()
     return UserSchema(many=True, only=["first_name","last_name"]).dump(users)
 
@@ -77,19 +77,22 @@ def update_user(user_id):
         user.first_name = user_info.get('first_name', user.first_name)
         user.last_name = user_info.get('last_name', user.last_name)
         user.phone_number = user_info.get('phone_number', user.phone_number)
-        admin = is_admin()
-        # if admin is True:
-        #     user.is_admin = user_info.get('is_admin', user.is_admin)
-        #     user.is_committee = user_info.get('is_committee', user.is_committee)
+        if user_info.get('is_admin') == "True":
+            admin_only()
+            user.is_admin = True
+        if user_info.get('is_committee') == "True":
+            admin_only()
+            user.is_committee = True
         db.session.commit()
         return UserSchema().dump(user)
     else:
         return {'error': 'No such user'}
 
+# Deletes a user from the database
 @users_bp.route('/<int:user_id>', methods=['DELETE'])
 @jwt_required()
-def delete_user(id):
-    stmt = db.select(User).filter_by(user_id=id)
+def delete_user(user_id):
+    stmt = db.select(User).filter_by(id=user_id)
     user = (db.session.scalar(stmt))
     if user:
         authorize()
@@ -113,7 +116,7 @@ def all_qualifications(user_id):
 @jwt_required()
 def all_courses(user_id):
     authorize_committee()
-    stmt = db.select(Course).join(UserCourse).where(UserCourse.user_id==user_id)
+    stmt = db.select(Course).join(UserCourse).where(UserCourse.user_id==user_id).order_by("id")
     courses = db.session.scalars(stmt).all()
     return CourseSchema(many=True).dump(courses)
 

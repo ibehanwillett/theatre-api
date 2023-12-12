@@ -115,10 +115,11 @@ def db_seed():
             user_id=users[0].id,
             qualification_id=qualifications[0].id,
         ),
-
+        # Horse Jorsington having a RSA
          UserQualification(
             user_id=users[2].id,
             qualification_id=qualifications[0].id,
+            last_refresher= "08/08/2021"
         )
     ]
 
