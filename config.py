@@ -39,4 +39,16 @@ def handle_data_error(e):
 
 @app.errorhandler(IntegrityError)
 def handle_integrity_error(e):
-    return {'error': str(e)}, 400
+    return {'Error': str(e)}, 400
+
+@app.errorhandler(401)
+def handle_401(e):
+    return {'Error': e.description}, 401
+
+@app.errorhandler(403)
+def handle_403(e):
+    return {'Error': e.description}, 403
+
+@app.errorhandler(404)
+def handle_404(e):
+    return {'Not Found': e.description}, 404

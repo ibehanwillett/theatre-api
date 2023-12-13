@@ -3,6 +3,7 @@ from config import db
 from models.course import Course, CourseSchema
 from flask_jwt_extended import jwt_required
 from auth import *
+from models.user_course import UserCourse, UserCourseSchema
 
 courses_bp = Blueprint('course', __name__, url_prefix='/courses')
 
@@ -57,4 +58,13 @@ def delete_course(id):
         return {'sucess': 'Course successfully deleted'},200
     else:
         return {'error':'Course not found'}, 404
+    
+# Return a list of all users with only the equivalent
+@courses_bp.route('/equivalent/<int:course_id>')
+@jwt_required()
+def equivalent_graduated(course_id):
+    admin_or_committee_only()
+    stmt = db.select(UserCourse).where((UserCourse.course_id==course_id) and (UserCourse.equivalent==True))
+    graduated_users = db.session.scalars(stmt).all()
+    return UserCourseSchema(many=True).dump(graduated_users)
     

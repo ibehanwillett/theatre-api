@@ -6,7 +6,7 @@ from models.qualification import Qualification, QualificationSchema
 
 qualifications_bp = Blueprint('qualification', __name__, url_prefix='/qualifications')
 
-# Return a list of all Qualifications
+# Return a list of all qualifications
 @qualifications_bp.route('/')
 @jwt_required()
 def all_qualifications():
@@ -14,7 +14,7 @@ def all_qualifications():
     qualifications = db.session.scalars(stmt).all()
     return QualificationSchema(many=True).dump(qualifications)
 
-# Create a new Qualification
+# Create a new qualification
 @qualifications_bp.route('/', methods=['POST'])
 @jwt_required()
 def create_qualification():
@@ -28,7 +28,7 @@ def create_qualification():
     db.session.commit()
     return QualificationSchema().dump(qualification),201
 
-# Updating a Qualification
+# Updating a qualification
 @qualifications_bp.route('/<int:id>', methods=['PUT','PATCH'])
 @jwt_required()
 def update_qualification(id):

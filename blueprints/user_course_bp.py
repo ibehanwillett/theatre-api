@@ -8,12 +8,6 @@ from auth import *
 
 usercourses_bp = Blueprint('usercourse', __name__, url_prefix='/user/courses')
 
-# @usercourses_bp.route('/<int:course_id>')
-# def all_users_qualified(course_id):
-#     stmt = db.select(usercourse).where(usercourse.course_id==course_id)
-#     qualified_users = db.session.scalars(stmt).all()
-#     return usercourseSchema(many=True).dump(qualified_users)
-
 #Give a user a new course
 @usercourses_bp.route("/", methods=["POST"])
 @jwt_required()
@@ -34,7 +28,7 @@ def register_course():
     return UserCourseSchema().dump(usercourse), 201
 
 
-# Updating a completed course
+# Updating a completed course to from equivalent to non-equivalent
 @usercourses_bp.route('/<int:user_id>/<int:course_id>', methods=['PUT','PATCH'])
 @jwt_required()
 def update_usercourse(user_id,course_id):
@@ -46,7 +40,7 @@ def update_usercourse(user_id,course_id):
             usercourse.equivalent = False
             usercourse.date_of_completion = datetime.datetime.now()
             db.session.commit()
-            return UserSchema().dump(usercourse)
+            return UserCourseSchema().dump(usercourse)
         else: 
             return {'Error': 'Course already completed'}, 400
     else:
@@ -57,9 +51,9 @@ def update_usercourse(user_id,course_id):
 @jwt_required()
 def all_users_graduated(course_id):
     admin_or_committee_only()
-    stmt = db.select(User).join(UserCourse).where(UserCourse.course_id==course_id)
+    stmt = db.select(UserCourse).where(UserCourse.course_id==course_id)
     graduated_users = db.session.scalars(stmt).all()
-    return UserSchema(many=True, exclude=["id","password","is_admin","is_committee"]).dump(graduated_users)
+    return UserCourseSchema(many=True).dump(graduated_users)
 
 
 #Delete a user's courses
@@ -67,7 +61,6 @@ def all_users_graduated(course_id):
 @jwt_required()
 def delete_usercourse(user_id,course_id):
     admin_only()
-    # usercourse_info = UserCourseSchema().load(request.json)
     usercourse = check_preexisting_graduation(user_id,course_id)
     if usercourse:
         db.session.delete(usercourse)
@@ -76,14 +69,6 @@ def delete_usercourse(user_id,course_id):
     else:
         return {'Error':'No record of user graduating specificed course'}, 404
     
-# Return a list of all users with only the equivalent
-@usercourses_bp.route('/equivalent/<int:course_id>')
-@jwt_required()
-def equivalent_graduated(course_id):
-    admin_or_committee_only()
-    stmt = db.select(User).join(UserCourse).where(db.and_(UserCourse.course_id==course_id, UserCourse.equivalent==True))
-    graduated_users = db.session.scalars(stmt).all()
-    return UserSchema(many=True, exclude=["id","password","is_admin","is_committee"]).dump(graduated_users)
 
 def check_preexisting_graduation(user_id, course_id):
     stmt = db.select(UserCourse).where(UserCourse.user_id==user_id,UserCourse.course_id==course_id)

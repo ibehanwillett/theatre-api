@@ -24,6 +24,7 @@ def db_seed():
         User(
             first_name= 'Big Fork',
             last_name= 'Admin',
+            phone_number= '0423537563',
             email="admin@bigforktheatre.com",
             password=bcrypt.generate_password_hash("comedyhero").decode("utf8"),
             is_admin=True,
@@ -38,6 +39,7 @@ def db_seed():
         User(
             first_name="Horse",
             last_name="Jorsington",
+            phone_number= "32456411",
             email="horse@jorse.com",
             password=bcrypt.generate_password_hash("mayorhorse").decode("utf8"),
         ),
@@ -110,6 +112,7 @@ def db_seed():
         UserCourse(
             user_id=users[0].id,
             course_id=courses[0].id,
+            equivalent = True,
         ),
         # Admin completed The Scene
         UserCourse(
@@ -135,6 +138,7 @@ def db_seed():
         UserCourse(
             user_id=users[1].id,
             course_id=courses[0].id,
+            equivalent = True,
         ),
         # Johnny completed The Scene
         UserCourse(
@@ -155,16 +159,19 @@ def db_seed():
         UserCourse(
             user_id=users[2].id,
             course_id=courses[0].id,
+            equivalent = True,
         ),
         # Horse completed The Scene
         UserCourse(
             user_id=users[2].id,
             course_id=courses[1].id,
+            equivalent = True,
         ),
-        # Johnny completed Charaters
+        # Horse completed Charaters
         UserCourse(
             user_id=users[2].id,
             course_id=courses[2].id,
+            equivalent= True,
         ),
 
     ]

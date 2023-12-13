@@ -95,7 +95,7 @@ def delete_user(user_id):
     stmt = db.select(User).filter_by(id=user_id)
     user = (db.session.scalar(stmt))
     if user:
-        authorize()
+        authorize(user_id)
         db.session.delete(user)
         db.session.commit()
         return {'Success': 'User deleted successfully'}, 200
@@ -106,7 +106,7 @@ def delete_user(user_id):
 @users_bp.route('qualified/<int:user_id>')
 @jwt_required()
 def all_qualifications(user_id):
-    authorize_committee()
+    authorize_committee(user_id)
     stmt = db.select(UserQualification).join(Qualification).where(UserQualification.user_id==user_id)
     qualifications = db.session.scalars(stmt).all()
     return UserQualificationSchema(many=True).dump(qualifications)
@@ -115,7 +115,7 @@ def all_qualifications(user_id):
 @users_bp.route('graduated/<int:user_id>')
 @jwt_required()
 def all_courses(user_id):
-    authorize_committee()
+    authorize_committee(user_id)
     stmt = db.select(UserCourse).join(Course).where(UserCourse.user_id==user_id).order_by("id")
     courses = db.session.scalars(stmt).all()
     return UserCourseSchema(many=True).dump(courses)
