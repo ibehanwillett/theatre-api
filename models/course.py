@@ -7,7 +7,7 @@ class Course(db.Model):
     name = db.Column(db.String(), nullable=False)
     description = db.Column(db.String())
 
-    user_courses = db.relationship('UserCourse', back_populates='course')
+    user_courses = db.relationship('UserCourse', back_populates='course', cascade='all, delete')
 
 class CourseSchema(ma.Schema):
     # name= fields.String(required=True)

@@ -7,7 +7,7 @@ class Qualification(db.Model):
     name = db.Column(db.String(), nullable=False)
     description = db.Column(db.String())
 
-    user_qualifications = db.relationship('UserQualification', back_populates='qualification')
+    user_qualifications = db.relationship('UserQualification', back_populates='qualification', cascade='all, delete')
 
 
 class QualificationSchema(ma.Schema):

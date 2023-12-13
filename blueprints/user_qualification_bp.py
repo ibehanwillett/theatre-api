@@ -44,16 +44,16 @@ def update_userqualification(user_id,qualification_id):
 @jwt_required()
 def all_users_qualified(qualification_id):
     admin_or_committee_only()
-    stmt = db.select(User).join(UserQualification).where(UserQualification.qualification_id==qualification_id)
+    stmt = db.select(UserQualification).where(UserQualification.qualification_id==qualification_id)
     qualified_users = db.session.scalars(stmt).all()
-    return UserSchema(many=True, exclude=["id","password","is_admin","is_committee"]).dump(qualified_users), 200
+    return UserQualificationSchema(many=True).dump(qualified_users), 200
 
 
 #Delete a user's qualifications
 @userqualifications_bp.route('/<int:user_id>/<int:qualification_id>', methods=['DELETE'])
 @jwt_required()
 def delete_userqualification(user_id,qualification_id):
-    userqualification_info = UserQualificationSchema().load(request.json)
+    # userqualification_info = UserQualificationSchema().load(request.json)
     userqualification = check_preexisting_qualification(user_id,qualification_id)
     if userqualification:
         admin_or_committee_only()
