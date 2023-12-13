@@ -23,5 +23,6 @@ class UserQualification(db.Model):
    
 
 class UserQualificationSchema(ma.Schema):
+    last_refresher = fields.Boolean
     class Meta:
         fields = ("user_id", "qualification_id", "last_refresher")

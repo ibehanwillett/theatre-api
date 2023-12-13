@@ -2,6 +2,7 @@ from flask import Blueprint, request
 from config import db
 from models.user_course import UserCourse, UserCourseSchema
 from models.user import User, UserSchema
+import datetime
 from flask_jwt_extended import jwt_required
 from auth import *
 
@@ -25,7 +26,7 @@ def register_course():
     usercourse = UserCourse(
         user_id=usercourse_info["user_id"],
         course_id=usercourse_info["course_id"],
-        # equivalent = usercourse_info.get("equivalent")
+        equivalent = bool(usercourse_info.get("equivalent"))
     )
     db.session.add(usercourse)
     db.session.commit()
@@ -43,12 +44,13 @@ def update_usercourse(user_id,course_id):
     if usercourse: 
         if usercourse.equivalent == True:
             usercourse.equivalent = False
+            usercourse.date_of_completion = datetime.datetime.now()
             db.session.commit()
             return UserSchema().dump(usercourse)
         else: 
             return {'Error': 'Course already completed'}, 400
     else:
-        return {'error': 'Course cannot be found for that user'}, 404
+        return {'Error': 'Course cannot be found for that user'}, 404
 
 # Return a list of all users with specific course
 @usercourses_bp.route('/<int:course_id>')

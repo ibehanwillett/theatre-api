@@ -93,6 +93,7 @@ def db_seed():
             name = 'Door Person', 
             description = 'Greets people on the night and checks their ticket'
         ),
+        
     ]
 
     db.session.add_all(qualifications)

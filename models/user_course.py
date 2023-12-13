@@ -26,5 +26,6 @@ class UserCourse(db.Model):
     )
 
 class UserCourseSchema(ma.Schema):
+    date_of_completion = fields.DateTime
     class Meta:
         fields = ('user_id', 'course_id', 'equivalent', 'date_of_completion')
