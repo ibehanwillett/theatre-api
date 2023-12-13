@@ -23,6 +23,8 @@ class UserQualification(db.Model):
    
 
 class UserQualificationSchema(ma.Schema):
-    last_refresher = fields.Boolean
+    # last_refresher = fields.Boolean()
     class Meta:
-        fields = ("user_id", "qualification_id", "last_refresher")
+        fields = ("user_id", "qualification_id", "last_refresher", "user", "qualification")
+    user =  fields.Nested("UserSchema", only=("first_name","last_name"))
+    qualification = fields.Nested("QualificationSchema", only=["name"])

@@ -103,22 +103,22 @@ def delete_user(user_id):
         return {'Error':'User not found'}, 404
     
 # Returns a list of all qualifications a user has 
-@users_bp.route('qualifications/<int:user_id>')
+@users_bp.route('qualified/<int:user_id>')
 @jwt_required()
 def all_qualifications(user_id):
     authorize_committee()
-    stmt = db.select(Qualification).join(UserQualification).where(UserQualification.user_id==user_id)
+    stmt = db.select(UserQualification).join(Qualification).where(UserQualification.user_id==user_id)
     qualifications = db.session.scalars(stmt).all()
-    return QualificationSchema(many=True).dump(qualifications)
+    return UserQualificationSchema(many=True).dump(qualifications)
 
 # Returns a list of courses that a user has completed
-@users_bp.route('courses/<int:user_id>')
+@users_bp.route('graduated/<int:user_id>')
 @jwt_required()
 def all_courses(user_id):
     authorize_committee()
-    stmt = db.select(Course).join(UserCourse).where(UserCourse.user_id==user_id).order_by("id")
+    stmt = db.select(UserCourse).join(Course).where(UserCourse.user_id==user_id).order_by("id")
     courses = db.session.scalars(stmt).all()
-    return CourseSchema(many=True).dump(courses)
+    return UserCourseSchema(many=True).dump(courses)
 
 
 

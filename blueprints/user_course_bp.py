@@ -6,7 +6,7 @@ import datetime
 from flask_jwt_extended import jwt_required
 from auth import *
 
-usercourses_bp = Blueprint('usercourse', __name__, url_prefix='/user_courses')
+usercourses_bp = Blueprint('usercourse', __name__, url_prefix='/user/courses')
 
 # @usercourses_bp.route('/<int:course_id>')
 # def all_users_qualified(course_id):
@@ -67,8 +67,8 @@ def all_users_graduated(course_id):
 @jwt_required()
 def delete_usercourse(user_id,course_id):
     admin_only()
-    usercourse_info = UserCourseSchema().load(request.json)
-    usercourse = check_preexisting_graduation(usercourse_info["user_id"],usercourse_info["course_id"])
+    # usercourse_info = UserCourseSchema().load(request.json)
+    usercourse = check_preexisting_graduation(user_id,course_id)
     if usercourse:
         db.session.delete(usercourse)
         db.session.commit()
@@ -89,3 +89,4 @@ def check_preexisting_graduation(user_id, course_id):
     stmt = db.select(UserCourse).where(UserCourse.user_id==user_id,UserCourse.course_id==course_id)
     record = db.session.scalar(stmt)
     return record
+
