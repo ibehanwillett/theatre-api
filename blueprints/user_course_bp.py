@@ -6,21 +6,22 @@ import datetime
 from flask_jwt_extended import jwt_required
 from auth import *
 
-usercourses_bp = Blueprint('usercourse', __name__, url_prefix='/user/courses')
+usercourses_bp = Blueprint('usercourse', __name__, url_prefix='/users/courses')
 
 #Give a user a new course
-@usercourses_bp.route("/", methods=["POST"])
+@usercourses_bp.route("/<int:user_id>/<int:course_id>", methods=["POST"])
 @jwt_required()
-def register_course():
+def register_course(user_id, course_id):
     admin_or_committee_only()
-    usercourse_info = UserCourseSchema().load(request.json)
-    check = check_preexisting_graduation(usercourse_info["user_id"],usercourse_info["course_id"])
+    usercourse_info = UserCourseSchema(only=("equivalent","date_of_completion")).load(request.json)
+    check = check_preexisting_graduation(user_id, course_id)
     if check:
         abort(406, description='Record already exists.')
     usercourse = UserCourse(
-        user_id=usercourse_info["user_id"],
-        course_id=usercourse_info["course_id"],
-        equivalent = bool(usercourse_info.get("equivalent"))
+        user_id=user_id,
+        course_id=course_id,
+        equivalent = bool(usercourse_info.get("equivalent", False)), # currently put "" to indicate false, literally anything else to indicate true. I hate this.
+        date_of_completion = usercourse_info.get("date_of_completion",datetime.datetime.now()) #YYYY-MM-DD
     )
     db.session.add(usercourse)
     db.session.commit()
@@ -33,7 +34,6 @@ def register_course():
 @jwt_required()
 def update_usercourse(user_id,course_id):
     admin_or_committee_only()
-    # usercourse_info = UserCourseSchema().load(request.json)
     usercourse = check_preexisting_graduation(user_id,course_id)
     if usercourse: 
         if usercourse.equivalent == True:

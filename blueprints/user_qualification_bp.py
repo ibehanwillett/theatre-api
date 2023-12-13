@@ -55,7 +55,6 @@ def all_users_qualified(qualification_id):
 @userqualifications_bp.route('/<int:user_id>/<int:qualification_id>', methods=['DELETE'])
 @jwt_required()
 def delete_userqualification(user_id,qualification_id):
-    # userqualification_info = UserQualificationSchema().load(request.json)
     userqualification = check_preexisting_qualification(user_id,qualification_id)
     if userqualification:
         admin_or_committee_only()
