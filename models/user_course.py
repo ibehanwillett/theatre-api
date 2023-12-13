@@ -28,5 +28,6 @@ class UserCourse(db.Model):
 class UserCourseSchema(ma.Schema):
     # date_of_completion = fields.DateTime
     class Meta:
-        fields = ('user_id', 'course_id', 'equivalent', 'date_of_completion', 'user')
-    user =  fields.Nested("UserSchema", only=("first_name","last_name"))  
+        fields = ('equivalent', 'date_of_completion', 'user', 'course')
+    user =  fields.Nested("UserSchema", only=("first_name","last_name"))
+    course = fields.Nested("CourseSchema", only=["name"])

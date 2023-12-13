@@ -81,7 +81,7 @@ def db_seed():
     qualifications = [
         Qualification(
             name = 'RSA',
-            description = 'Responsible Service of Alchol. You need it to bartend in Queensland.'
+            description = 'Responsible Service of Alcohol. You need it to bartend in Queensland.'
         ), 
 
         Qualification(
@@ -91,7 +91,12 @@ def db_seed():
 
         Qualification(
             name = 'Door Person', 
-            description = 'Greets people on the night and checks their ticket'
+            description = 'Greets audience members as they enter the venue. Once the show begins, helps restock the bar.'
+        ),
+
+        Qualification(
+            name = 'Tech Desk', 
+            description = 'Greets audience members as they enter the venue. Once the show begins, helps restock the bar.'
         ),
         
     ]
@@ -101,10 +106,67 @@ def db_seed():
 
     # Creating course enrollement
     graduated = [
+        # Admin completed Fundies
         UserCourse(
             user_id=users[0].id,
             course_id=courses[0].id,
-        )
+        ),
+        # Admin completed The Scene
+        UserCourse(
+            user_id=users[0].id,
+            course_id=courses[1].id,
+        ),
+        # Admin completed Charaters
+        UserCourse(
+            user_id=users[0].id,
+            course_id=courses[2].id,
+        ),
+        # Admin completed Group Mind
+        UserCourse(
+            user_id=users[0].id,
+            course_id=courses[3].id,
+        ),
+        # Admin completed Finding the Funny
+        UserCourse(
+            user_id=users[0].id,
+            course_id=courses[4].id,
+        ),
+         # Johnny completed Fundies
+        UserCourse(
+            user_id=users[1].id,
+            course_id=courses[0].id,
+        ),
+        # Johnny completed The Scene
+        UserCourse(
+            user_id=users[1].id,
+            course_id=courses[1].id,
+        ),
+        # Johnny completed Charaters
+        UserCourse(
+            user_id=users[1].id,
+            course_id=courses[2].id,
+        ),
+        # Johnny completed Group Mind
+        UserCourse(
+            user_id=users[1].id,
+            course_id=courses[3].id,
+        ),
+         # Horse completed Fundies
+        UserCourse(
+            user_id=users[2].id,
+            course_id=courses[0].id,
+        ),
+        # Horse completed The Scene
+        UserCourse(
+            user_id=users[2].id,
+            course_id=courses[1].id,
+        ),
+        # Johnny completed Charaters
+        UserCourse(
+            user_id=users[2].id,
+            course_id=courses[2].id,
+        ),
+
     ]
 
     db.session.add_all(graduated)
@@ -112,14 +174,31 @@ def db_seed():
 
     # Assigning qualifications
     qualifications = [
+        # Admin has a RSA
         UserQualification(
             user_id=users[0].id,
             qualification_id=qualifications[0].id,
         ),
-        # Horse Jorsington having a RSA
-         UserQualification(
+        # Johnny is a venue manager
+        UserQualification(
+            user_id=users[1].id,
+            qualification_id=qualifications[1].id,
+        ),
+        # Johnny can do door
+        UserQualification(
+            user_id=users[1].id,
+            qualification_id=qualifications[2].id,
+        ),
+        # Horse Jorsington has a RSA
+        UserQualification(
             user_id=users[2].id,
             qualification_id=qualifications[0].id,
+            last_refresher= "08/08/2021"
+        ),
+        # Horse Jorsington can operate the tech desk
+        UserQualification(
+            user_id=users[2].id,
+            qualification_id=qualifications[3].id,
             last_refresher= "08/08/2021"
         )
     ]

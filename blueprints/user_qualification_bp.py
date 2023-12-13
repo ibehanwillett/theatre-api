@@ -5,7 +5,7 @@ from models.user import User, UserSchema
 from auth import *
 import datetime
 from flask_jwt_extended import jwt_required
-userqualifications_bp = Blueprint('userqualification', __name__, url_prefix='/user_qualifications')
+userqualifications_bp = Blueprint('userqualification', __name__, url_prefix='/users/qualifications')
 
 
 #Give a user a new qualification
