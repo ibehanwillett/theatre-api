@@ -1,7 +1,6 @@
 from flask import Blueprint, request
 from config import db
 from models.user_qualification import UserQualification, UserQualificationSchema
-from models.user import User, UserSchema
 from auth import *
 import datetime
 from flask_jwt_extended import jwt_required
@@ -46,7 +45,10 @@ def all_users_qualified(qualification_id):
     admin_or_committee_only()
     stmt = db.select(UserQualification).where(UserQualification.qualification_id==qualification_id)
     qualified_users = db.session.scalars(stmt).all()
-    return UserQualificationSchema(many=True).dump(qualified_users), 200
+    if qualified_users:
+        return UserQualificationSchema(many=True).dump(qualified_users), 200
+    else:
+        return {'Error': 'No records found.'},404
 
 
 #Delete a user's qualifications
