@@ -10,6 +10,6 @@ class Course(db.Model):
     user_courses = db.relationship('UserCourse', back_populates='course', cascade='all, delete')
 
 class CourseSchema(ma.Schema):
-    # name= fields.String(required=True)
+    name= fields.String(required=True)
     class Meta:
         fields = ("id", "name", "description")

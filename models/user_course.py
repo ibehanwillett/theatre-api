@@ -5,7 +5,6 @@ from sqlalchemy import PrimaryKeyConstraint
 
 class UserCourse(db.Model):
     __tablename__ = 'user_courses'
-    # id= db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'))
     

@@ -5,13 +5,10 @@ from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import create_access_token, jwt_required
 from datetime import timedelta
 from models.user_qualification import UserQualification, UserQualificationSchema
-from models.qualification import Qualification, QualificationSchema
+from models.qualification import Qualification
 from models.user_course import UserCourse, UserCourseSchema
-from models.course import Course, CourseSchema
+from models.course import Course
 from auth import *
-
-
-
 
 users_bp = Blueprint('users', __name__, url_prefix='/users')
 
@@ -19,7 +16,9 @@ users_bp = Blueprint('users', __name__, url_prefix='/users')
 @users_bp.route("/register", methods=["POST"])
 def register():
     try:
+        # Desezialises the data from the body of the request into object defined by the User Schema
         user_info = UserSchema(exclude=["id", "is_admin", "is_committee"]).load(request.json)
+        # Creates a new User object with infomation from the user_info variable.
         user = User(
             email=user_info["email"],
             password=bcrypt.generate_password_hash(user_info["password"]).decode(
@@ -29,9 +28,10 @@ def register():
             last_name=user_info["last_name"],
             phone_number=user_info.get("phone_number"),
         )
+        # Adds the user to the database
         db.session.add(user)
+        # Commits the session
         db.session.commit()
-
         return UserSchema(exclude=["password"]).dump(user), 201
     except IntegrityError:
         return {"error": "Email address already in use"}, 409
