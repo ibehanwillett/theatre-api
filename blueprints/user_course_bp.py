@@ -13,17 +13,24 @@ usercourses_bp = Blueprint('usercourse', __name__, url_prefix='/users/courses')
 @jwt_required()
 def register_course(user_id, course_id):
     admin_or_committee_only()
+    # Deserialises the information from the request's body into the an object defined by UserCourse schema.
+    # Only the equivalent and date of completion fields are used from UserSchema, the other fields are provided by route.
     usercourse_info = UserCourseSchema(only=("equivalent","date_of_completion")).load(request.json)
+    # The database is checked to ensure this UserCourse isn't a duplicate.
     check = check_preexisting_graduation(user_id, course_id)
     if check:
+        # If it is, an exception is raised
         abort(406, description='Record already exists.')
+        # If not, a new Usercourse object is created seeded with data from usercourse_info
     usercourse = UserCourse(
         user_id=user_id,
         course_id=course_id,
         equivalent = bool(usercourse_info.get("equivalent", False)), # currently put "" to indicate false, literally anything else to indicate true. I hate this.
         date_of_completion = usercourse_info.get("date_of_completion",datetime.datetime.now()) #YYYY-MM-DD
     )
+    # The new UserCourse object is added to the database.
     db.session.add(usercourse)
+    # The session is committed.
     db.session.commit()
 
     return UserCourseSchema().dump(usercourse), 201
@@ -34,11 +41,16 @@ def register_course(user_id, course_id):
 @jwt_required()
 def update_usercourse(user_id,course_id):
     admin_or_committee_only()
+    # Checks if there is pre-existing record of the User graduating the specified course (User id and course id supplied by the route.)
     usercourse = check_preexisting_graduation(user_id,course_id)
     if usercourse: 
+        # If there is a matching Usercourse, check what value is stored for equivalent
         if usercourse.equivalent == True:
+            # If it is true, change to false
             usercourse.equivalent = False
+            # Update date of compeletion to today's date.
             usercourse.date_of_completion = datetime.datetime.now()
+            #C Commit the session
             db.session.commit()
             return UserCourseSchema().dump(usercourse)
         else: 
@@ -51,8 +63,11 @@ def update_usercourse(user_id,course_id):
 @jwt_required()
 def all_users_graduated(course_id):
     admin_or_committee_only()
+    # Create a statement selecting all UserCourses where the id of the course matches the course id specifed in the route
     stmt = db.select(UserCourse).where(UserCourse.course_id==course_id)
+    # Excutes the statment and saves in in a variable called graduated_users
     graduated_users = db.session.scalars(stmt).all()
+    # Deserialise the
     return UserCourseSchema(many=True).dump(graduated_users)
 
 
@@ -61,9 +76,13 @@ def all_users_graduated(course_id):
 @jwt_required()
 def delete_usercourse(user_id,course_id):
     admin_only()
+    # Create a statement selecting all UserCourses where the id of the course matches the course id specifed in the route
     usercourse = check_preexisting_graduation(user_id,course_id)
+    # If a matching UserCourse is found...
     if usercourse:
+        # Delete the UserCourse
         db.session.delete(usercourse)
+        # Commit the session
         db.session.commit()
         return {'Success': 'Course deleted successfully'}, 200
     else:
@@ -71,7 +90,10 @@ def delete_usercourse(user_id,course_id):
     
 
 def check_preexisting_graduation(user_id, course_id):
+    # Creates a database query to select the UserCourse that has the user id and the course_id specifed in the function
     stmt = db.select(UserCourse).where(UserCourse.user_id==user_id,UserCourse.course_id==course_id)
+    # Executes the query and stored the result in the record variable.
     record = db.session.scalar(stmt)
+    # Returns the record variable
     return record
 
