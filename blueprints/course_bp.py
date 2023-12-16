@@ -13,7 +13,7 @@ courses_bp = Blueprint('course', __name__, url_prefix='/courses')
 def all_courses():
     # Creates a statement to return all courses in database
     stmt = db.select(Course)
-    # Executes that query and returns the result is scalars
+    # Executes that query and returns the result in scalars
     courses = db.session.scalars(stmt).all()
     # Seralizes the scalars into a JSON object defined by the UserCourse Schema
     return CourseSchema(many=True).dump(courses)
@@ -48,7 +48,7 @@ def update_course(id):
     stmt = db.select(Course).filter_by(id=id)
     # Statement is executed.
     course = db.session.scalar(stmt)
-    # If a course is found to match the id in the course_info, then the course is update with other information in course_info
+    # If a course is found to match the id in the course_info, then the course is updated with other information from course_info
     if course: 
         course.name = course_info.get('name', course.name)
         course.description = course_info.get('description', course.description)
@@ -68,11 +68,11 @@ def delete_course(id):
     # The query is excuted
     course = db.session.scalar(stmt)
     if course: 
-        # If a course is found, it is deleted of the database
+        # If a course is found, it is deleted from the database
         db.session.delete(course)
         # The session is committed
         db.session.commit()
-        return {'sucess': 'Course successfully deleted'},200
+        return {'success': 'Course successfully deleted'},200
     else:
         return {'error':'Course not found'}, 404
     
