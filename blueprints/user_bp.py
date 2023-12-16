@@ -55,7 +55,7 @@ def login():
         return {"error": "Invalid email or password"}, 401
 
 # Returns list of all users
-@users_bp.route('/')
+@users_bp.route("/", methods=["GET"])
 @jwt_required()
 def all_users():
     # Creates a query to get all users in the user table of the database, and to order them by their last name
@@ -66,7 +66,7 @@ def all_users():
     return UserSchema(many=True, only=["first_name","last_name"]).dump(users)
 
 # Returns list of all committee members
-@users_bp.route('/committee')
+@users_bp.route("/committee")
 @jwt_required()
 def all_committee():
     # Creates a query to get all users in the user table of the database that have is_committee equal True 
@@ -81,7 +81,7 @@ def all_committee():
 @jwt_required()
 def update_user(user_id):
     # Desezialises the data from the body of the request into object defined by the User Schema
-    user_info = UserSchema().load(request.json)
+    user_info = UserSchema(partial=True).load(request.json)
     # Creates a query to select the user in the user table in the database that matches the id specificed in the route
     stmt = db.select(User).filter_by(id=user_id)
     # Executes the query and returns the result as a scalar
@@ -106,7 +106,7 @@ def update_user(user_id):
             # Commits the session
         db.session.commit()
         # Serializes and returns a JSON containing the updated user's information
-        return UserSchema().dump(user)
+        return UserSchema(exclude=["password"]).dump(user)
     else:
         return {'error': 'No such user'}
 
@@ -142,17 +142,25 @@ def all_qualifications(user_id):
     # Serizalises and returns the result as a JSON object defined by the User Qualification Schema
     return UserQualificationSchema(many=True).dump(qualifications)
 
-# Returns a list of courses that a user has completed
+# # Returns a list of courses that a user has completed
+# @users_bp.route('graduated/<int:user_id>')
+# @jwt_required()
+# def all_courses(user_id):
+#      # Authorise the current user is either a adminstrator or and committee member
+#     authorize_committee(user_id)
+#     # Create a database query selecting all UserCourse entities where the user id matched the id specified in the route
+#     stmt = db.select(UserCourse).where(UserCourse.user_id==user_id).order_by("id")
+#      # Executes the query and return the result as scalars
+#     courses = db.session.scalars(stmt).all()
+#     # Serizalises and returns the result as a JSON object defined by the User Course Schema
+#     return UserCourseSchema(many=True).dump(courses)
+
 @users_bp.route('graduated/<int:user_id>')
 @jwt_required()
 def all_courses(user_id):
-     # Authorise the current user is either a adminstrator or and committee member
     authorize_committee(user_id)
-    # Create a database query selecting all UserCourse entities where the user id matched the id specified in the route
     stmt = db.select(UserCourse).where(UserCourse.user_id==user_id).order_by("id")
-     # Executes the query and return the result as scalars
     courses = db.session.scalars(stmt).all()
-    # Serizalises and returns the result as a JSON object defined by the User Course Schema
     return UserCourseSchema(many=True).dump(courses)
 
 
