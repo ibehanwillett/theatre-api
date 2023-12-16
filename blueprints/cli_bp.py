@@ -12,14 +12,16 @@ db_commands = Blueprint('db', __name__)
 
 @db_commands.cli.command("create")
 def db_create():
+    # Drops all existing tables in the database
     db.drop_all()
+    # Creates new tables in the database based of the models
     db.create_all()
     print("Created tables")
 
 
 @db_commands.cli.command("seed")
 def db_seed():
-    # Creating the user table
+    # Defines User objects to seed the users table with
     users = [
         User(
             first_name= 'Big Fork',
@@ -44,11 +46,12 @@ def db_seed():
             password=bcrypt.generate_password_hash("mayorhorse").decode("utf8"),
         ),
     ]
-
+    # Adds the Users objects to the users table
     db.session.add_all(users)
+    # Commits the session
     db.session.commit()
 
-    # Creating the courses
+    # Defines Course objects to seed the courses table with
     courses = [
         Course(
             name = 'Improv Fundamentals',
@@ -75,11 +78,12 @@ def db_seed():
             description = 'The basics of game improv'
         ), 
     ]
-
+    # # Adds the Course objects to the courses table
     db.session.add_all(courses)
+    # Commits the session
     db.session.commit()
 
-    # Creating the qualifications
+    # Defines Qualification objects to seed the qualification table with
     qualifications = [
         Qualification(
             name = 'RSA',
@@ -102,11 +106,12 @@ def db_seed():
         ),
         
     ]
-
+    #  Adds the Qualification objects to the qualification table
     db.session.add_all(qualifications)
+    # Commits the session to the database
     db.session.commit()
 
-    # Creating course enrollement
+    # Defines UserCourse objects to seed the user_course table with
     graduated = [
         # Admin completed Fundies
         UserCourse(
@@ -175,11 +180,11 @@ def db_seed():
         ),
 
     ]
-
+    # # Adds the UserCourse objects to the user_courses table
     db.session.add_all(graduated)
     db.session.commit()
 
-    # Assigning qualifications
+    # Defines the UserQualification objects to seed the user_qualifications tablenwith
     qualifications = [
         # Admin has a RSA
         UserQualification(
@@ -209,8 +214,9 @@ def db_seed():
             last_refresher= "08/08/2021"
         )
     ]
-
+    # Adds the UserQualification objects to the user_qualification table
     db.session.add_all(qualifications)
+    # Commits the session
     db.session.commit()
 
 
