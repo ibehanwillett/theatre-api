@@ -67,7 +67,7 @@ def all_users_graduated(course_id):
     stmt = db.select(UserCourse).where(UserCourse.course_id==course_id)
     # Excutes the statment and saves in in a variable called graduated_users
     graduated_users = db.session.scalars(stmt).all()
-    # Deserialise the
+    # Deserialise the graduated_users into a JSON defined by UserCourse schema and returns that to the client
     return UserCourseSchema(many=True).dump(graduated_users)
 
 
@@ -76,7 +76,7 @@ def all_users_graduated(course_id):
 @jwt_required()
 def delete_usercourse(user_id,course_id):
     admin_only()
-    # Create a statement selecting all UserCourses where the id of the course matches the course id specifed in the route
+    # Selects all UserCourses where the id of the course matches the course id & user id specifed in the route from the database
     usercourse = check_preexisting_graduation(user_id,course_id)
     # If a matching UserCourse is found...
     if usercourse:
