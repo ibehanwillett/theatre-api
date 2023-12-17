@@ -82,7 +82,7 @@ def delete_course(id):
 def equivalent_graduated(course_id):
     admin_or_committee_only()
     # Creates a database query to retrieve all UserCourse entities that are both of the id specified in the route and True for their equivalent attribute
-    stmt = db.select(UserCourse).where((UserCourse.course_id==course_id) and (UserCourse.equivalent==True))
+    stmt = db.select(UserCourse).where(UserCourse.equivalent==True,UserCourse.course_id==course_id)
     # Executes the query and returns the result as scalars
     graduated_users = db.session.scalars(stmt).all()
     # Serialises the graduated users into a JSON defined by the UserCourse Schema

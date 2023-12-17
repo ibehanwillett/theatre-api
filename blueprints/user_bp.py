@@ -142,26 +142,19 @@ def all_qualifications(user_id):
     # Serizalises and returns the result as a JSON object defined by the User Qualification Schema
     return UserQualificationSchema(many=True).dump(qualifications)
 
-# # Returns a list of courses that a user has completed
-# @users_bp.route('graduated/<int:user_id>')
-# @jwt_required()
-# def all_courses(user_id):
-#      # Authorise the current user is either a adminstrator or and committee member
-#     authorize_committee(user_id)
-#     # Create a database query selecting all UserCourse entities where the user id matched the id specified in the route
-#     stmt = db.select(UserCourse).where(UserCourse.user_id==user_id).order_by("id")
-#      # Executes the query and return the result as scalars
-#     courses = db.session.scalars(stmt).all()
-#     # Serizalises and returns the result as a JSON object defined by the User Course Schema
-#     return UserCourseSchema(many=True).dump(courses)
-
+# Returns a list of courses that a user has completed
 @users_bp.route('graduated/<int:user_id>')
 @jwt_required()
 def all_courses(user_id):
+     # Authorise the current user is either a adminstrator or and committee member
     authorize_committee(user_id)
-    stmt = db.select(UserCourse).where(UserCourse.user_id==user_id).order_by("id")
+    # Create a database query selecting all UserCourse entities where the user id matched the id specified in the route
+    stmt = db.select(UserCourse).where(UserCourse.user_id==user_id)
+     # Executes the query and return the result as scalars
     courses = db.session.scalars(stmt).all()
+    # Serizalises and returns the result as a JSON object defined by the User Course Schema
     return UserCourseSchema(many=True).dump(courses)
+
 
 
 

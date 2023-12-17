@@ -53,6 +53,14 @@ def handle_403(e):
 def handle_404(e):
     return {'Not Found': e.description}, 404
 
+@app.errorhandler(405)
+def handle_404(e):
+    return {'Not Found': e.description}, 405
+
 @app.errorhandler(406)
 def handle_406(e):
     return {'Error': e.description}, 406
+
+@app.errorhandler(415)
+def handle_415(e):
+    return {'Error': e.description}, 415

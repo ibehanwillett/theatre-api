@@ -35,7 +35,7 @@ def register_qualification():
 @jwt_required()
 def update_userqualification(user_id,qualification_id):
     # Deserialises the information from the request's body into an object defined by the UserQualification Schema.
-    userqualification_info = UserQualificationSchema().load(request.json)
+    userqualification_info = UserQualificationSchema(only=["last_refresher"]).load(request.json)
      # The database is searched for a pre-existing UserQualification with the same qualification id and user id..
     userqualification = check_preexisting_qualification(user_id, qualification_id)
     if userqualification: 
